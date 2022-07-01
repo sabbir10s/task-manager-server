@@ -33,18 +33,26 @@ async function run() {
             res.send(task);
         })
 
-        // Add Task Status (complete)
+        // Add Task Status
         app.put('/task/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
             const updateDoc = {
-                $set: {
-                    status: "complete"
-                }
+                $set: req?.body
             };
-            const result = await taskCollection.updateOne(filter, updateDoc);
+            const result = await taskCollection.updateOne(filter, updateDoc, { upsert: true });
             res.send(result);
         })
+
+        // Delete Task
+        app.delete('/task/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await taskCollection.deleteOne(query);
+            res.send(result);
+        })
+
+
 
     } finally {
         //   await client.close();
